@@ -1,0 +1,107 @@
+version: '3.7'
+
+services:
+  kratos-migrate:
+    image: oryd/kratos:v0.8.0-alpha.3
+    environment:
+      - DSN=postgres://kratos:kratos@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+    volumes:
+      - type: bind
+        source: ./contrib/quickstart/kratos/email-password
+        target: /etc/config/kratos
+    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
+    restart: on-failure
+    networks:
+      - auth
+
+  kratos-selfservice-ui-node:
+    image: oryd/kratos-selfservice-ui-node:v0.8.0-alpha.3
+    environment:
+      - PORT=4435 # Why is this important? In `access-rules.yml` is configured that request is redirected to this port
+      - KRATOS_BROWSER_URL=http://127.0.0.1:4455/.ory/kratos/public
+      - JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
+      - SECURITY_MODE=jwks
+      - KRATOS_PUBLIC_URL=http://kratos:4433/
+      # Without OAuth keeper
+      # - PORT=4455
+      # - KRATOS_BROWSER_URL=http://127.0.0.1:4433/
+    ports:
+      # - "4455:4455"
+      - "4435:4435"
+    networks:
+      - auth
+    restart: on-failure
+
+  kratos:
+    depends_on:
+      - kratos-migrate
+    image: oryd/kratos:v0.8.0-alpha.3
+    ports:
+      - '4433:4433' # public
+      - '4434:4434' # admin
+    restart: unless-stopped
+    environment:
+      - DSN=postgres://kratos:kratos@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - LOG_LEVEL=trace
+      - SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    volumes:
+      - type: bind
+        source: ./contrib/quickstart/kratos/email-password
+        target: /etc/config/kratos
+    networks:
+      - auth
+
+  postgresd:
+    image: postgres:9.6
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=kratos
+      - POSTGRES_PASSWORD=kratos
+      - POSTGRES_DB=kratos
+    networks:
+      - auth
+
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    ports:
+      - '4436:4436'
+      - '4437:4437'
+    networks:
+      - auth
+
+  pgadmin:
+    container_name: "TL-PgAdminOry"
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=alan.jagar@tylentlyft.com
+      - PGADMIN_DEFAULT_PASSWORD=rotring123
+    ports:
+      - "8071:80"
+    networks:
+      - auth
+
+  oathkeeper:
+    image: oryd/oathkeeper:v0.38
+    depends_on:
+      - kratos
+    ports:
+      - 4455:4455
+      - 4456:4456
+      - 1234:5291
+    command:
+      serve proxy -c "/etc/config/oathkeeper/oathkeeper.yml"
+    environment:
+      - LOG_LEVEL=debug
+    restart: on-failure
+    networks:
+      - auth
+    volumes:
+      - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
+
+networks:
+  auth:
+
+volumes:
+  kratos-sqlite:
