@@ -100,8 +100,66 @@ services:
     volumes:
       - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
 
+  hydra:
+    image: oryd/hydra:v1.10.6
+    ports:
+      - "4444:4444" # Public port
+      - "4445:4445" # Admin port
+      - "5555:5555" # Port for hydra token user
+    command:
+      serve -c /etc/config/hydra/hydra.yml all --dangerous-force-http
+    volumes:
+      -
+        type: volume
+        source: hydra-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      -
+        type: bind
+        source: ./contrib/quickstart/hydra
+        target: /etc/config/hydra
+    environment:
+      - DSN=postgres://hydra:hydra@postgresd2:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+    restart: unless-stopped
+    depends_on:
+      - hydra-migrate
+    networks:
+      - auth
+
+  hydra-migrate:
+    image: oryd/hydra:v1.10.6
+    environment:
+      - DSN=postgres://hydra:hydra@postgresd2:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+    command:
+      migrate -c /etc/config/hydra/hydra.yml sql -e --yes
+    volumes:
+      -
+        type: volume
+        source: hydra-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      -
+        type: bind
+        source: ./contrib/quickstart/hydra
+        target: /etc/config/hydra
+    restart: on-failure
+    networks:
+      - auth
+
+  postgresd2:
+    image: postgres:9.6
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=hydra
+      - POSTGRES_PASSWORD=hydra
+      - POSTGRES_DB=hydra
+    networks:
+      - auth
+
 networks:
   auth:
 
 volumes:
   kratos-sqlite:
+  hydra-sqlite:
