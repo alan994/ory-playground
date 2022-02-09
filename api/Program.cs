@@ -1,6 +1,10 @@
+using System.Net;
 using api;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Ory.Hydra.Client.Api;
+using Ory.Hydra.Client.Client;
+using Ory.Hydra.Client.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddConsole();
@@ -29,19 +33,6 @@ app.Use(async (context, next) =>
 
     identityInfo.UserId = userId;
     identityInfo.CompanyName = companyName;
-
-    //var cultureQuery = context.Request.Query["culture"];
-    //if (!string.IsNullOrWhiteSpace(cultureQuery))
-    //{
-    //    var culture = new CultureInfo(cultureQuery);
-
-    //    CultureInfo.CurrentCulture = culture;
-    //    CultureInfo.CurrentUICulture = culture;
-    //}
-
-
-
-    // Call the next delegate/middleware in the pipeline.
     await next(context);
 });
 
@@ -51,6 +42,22 @@ app.MapGet("/secure", (HttpContext httpContext, [FromServices] ILogger<Program> 
         return identityInfo;
     });
 
+app.MapGet("/hydra/create", (HttpContext httpContext) =>
+{
+    IAdminApi adminApi = new AdminApi("http://localhost:4445");
+
+    adminApi.CreateOAuth2Client(new HydraOAuth2Client(
+        clientId: "alan",
+        clientName: "alan client",
+        clientSecret: "alanory",
+        grantTypes: new List<string>(){ "authorization_code", "refresh_token" },
+        responseTypes: new List<string>() { "code" },
+        scope: "openid,offline"
+    ));
+    return HttpStatusCode.OK;
+});
+
 app.MapGet("/", () => "Hello");
+
 
 app.Run();

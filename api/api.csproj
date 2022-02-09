@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Ory.Hydra.Client" Version="1.10.6" />
   </ItemGroup>
 
 </Project>

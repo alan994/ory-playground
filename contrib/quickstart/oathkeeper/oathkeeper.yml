@@ -67,6 +67,14 @@ authenticators:
       only:
         - ory_kratos_session
 
+
+  oauth2_introspection:
+    enabled: true
+    config:
+      introspection_url: http://hydra:4445/oauth2/introspect
+      scope_strategy: none
+
+
   noop:
     enabled: true
 
@@ -93,4 +101,4 @@ mutators:
     config:
       headers:
         X-UserId: '{{ print .Subject }}'
-        X-CompanyName: '{{ print .Extra.identity.traits.company }}'
+        # X-CompanyName: '{{ print .Extra.identity.traits.company }}'

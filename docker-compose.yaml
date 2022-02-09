@@ -1,37 +1,23 @@
 version: '3.7'
 
 services:
+####################################### KRATOS #######################################################################
   kratos-migrate:
     image: oryd/kratos:v0.8.0-alpha.3
     environment:
-      - DSN=postgres://kratos:kratos@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://ory:ory@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
+      - type: volume
+        source: kratos-db
+        target: /var/lib/sqlite
+        read_only: false
       - type: bind
         source: ./contrib/quickstart/kratos/email-password
         target: /etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
     restart: on-failure
     networks:
-      - auth
-
-  kratos-selfservice-ui-node:
-    image: oryd/kratos-selfservice-ui-node:v0.8.0-alpha.3
-    environment:
-      - PORT=4435 # Why is this important? In `access-rules.yml` is configured that request is redirected to this port
-      - KRATOS_BROWSER_URL=http://127.0.0.1:4455/.ory/kratos/public
-      - JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
-      - SECURITY_MODE=jwks
-      - KRATOS_PUBLIC_URL=http://kratos:4433/
-      # Without OAuth keeper
-      # - PORT=4455
-      # - KRATOS_BROWSER_URL=http://127.0.0.1:4433/
-    ports:
-      # - "4455:4455"
-      - "4435:4435"
-    networks:
-      - auth
-    restart: on-failure
-
+      - ory
   kratos:
     depends_on:
       - kratos-migrate
@@ -41,47 +27,48 @@ services:
       - '4434:4434' # admin
     restart: unless-stopped
     environment:
-      - DSN=postgres://kratos:kratos@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://ory:ory@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
       - LOG_LEVEL=trace
       - SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
+      - type: volume
+        source: kratos-db
+        target: /var/lib/sqlite
+        read_only: false
       - type: bind
         source: ./contrib/quickstart/kratos/email-password
         target: /etc/config/kratos
     networks:
-      - auth
+      - ory
 
-  postgresd:
-    image: postgres:9.6
-    ports:
-      - "5432:5432"
+####################################### END KRATOS #######################################################################
+####################################### UI #######################################################################
+  kratos-selfservice-ui-node:
+    image: oryd/kratos-selfservice-ui-node:v0.8.0-alpha.3
     environment:
-      - POSTGRES_USER=kratos
-      - POSTGRES_PASSWORD=kratos
-      - POSTGRES_DB=kratos
+      - PORT=4435 # Why is this important? In `access-rules.yml` is configured that request is redirected to this port
+      - KRATOS_BROWSER_URL=http://127.0.0.1:4455/.ory/kratos/public
+      - JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
+      - SECURITY_MODE=jwks
+      - KRATOS_PUBLIC_URL=http://kratos:4433/
+    ports:
+      - "4435:4435"
     networks:
-      - auth
-
+      - ory
+    restart: on-failure
+####################################### END UI #######################################################################
+####################################### TOOLS #######################################################################
   mailslurper:
     image: oryd/mailslurper:latest-smtps
     ports:
       - '4436:4436'
       - '4437:4437'
     networks:
-      - auth
+      - ory
 
-  pgadmin:
-    container_name: "TL-PgAdminOry"
-    image: dpage/pgadmin4:latest
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=alan.jagar@tylentlyft.com
-      - PGADMIN_DEFAULT_PASSWORD=rotring123
-    ports:
-      - "8071:80"
-    networks:
-      - auth
-
+####################################### END TOOLS #######################################################################
+####################################### OAuth Keeper #######################################################################
   oathkeeper:
     image: oryd/oathkeeper:v0.38
     depends_on:
@@ -96,12 +83,13 @@ services:
       - LOG_LEVEL=debug
     restart: on-failure
     networks:
-      - auth
+      - ory
     volumes:
       - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
-
+####################################### END OAuth Keeper #######################################################################
+####################################### HYDRA #######################################################################
   hydra:
-    image: oryd/hydra:v1.10.6
+    image: oryd/hydra:v1.11.1
     ports:
       - "4444:4444" # Public port
       - "4445:4445" # Admin port
@@ -111,7 +99,7 @@ services:
     volumes:
       -
         type: volume
-        source: hydra-sqlite
+        source: hydra-db
         target: /var/lib/sqlite
         read_only: false
       -
@@ -119,23 +107,23 @@ services:
         source: ./contrib/quickstart/hydra
         target: /etc/config/hydra
     environment:
-      - DSN=postgres://hydra:hydra@postgresd2:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://ory:ory@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
     restart: unless-stopped
     depends_on:
       - hydra-migrate
     networks:
-      - auth
+      - ory
 
   hydra-migrate:
-    image: oryd/hydra:v1.10.6
+    image: oryd/hydra:v1.11.1
     environment:
-      - DSN=postgres://hydra:hydra@postgresd2:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://ory:ory@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
     command:
       migrate -c /etc/config/hydra/hydra.yml sql -e --yes
     volumes:
       -
         type: volume
-        source: hydra-sqlite
+        source: hydra-db
         target: /var/lib/sqlite
         read_only: false
       -
@@ -144,22 +132,32 @@ services:
         target: /etc/config/hydra
     restart: on-failure
     networks:
-      - auth
-
-  postgresd2:
-    image: postgres:9.6
+      - ory
+####################################### END HYDRA #######################################################################
+####################################### API #######################################################################
+  api:
+    image: ory-api:latest
     ports:
-      - "5433:5432"
-    environment:
-      - POSTGRES_USER=hydra
-      - POSTGRES_PASSWORD=hydra
-      - POSTGRES_DB=hydra
+      - 5291:80
     networks:
-      - auth
-
+      - ory
+####################################### END API #######################################################################
+####################################### TalentLyft Auth #######################################################################
+  # tl-atuh:
+  #   image: ory-tl-auth:latest
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Staging
+  #     - DataProtectionStorageCS="https://adoptostaging.blob.core.windows.net/key-container/keys.xml?sv=2019-10-10&ss=b&srt=o&sp=rwdcx&se=2050-06-11T22:00:13Z&st=2020-06-11T11:00:13Z&spr=https&sig=Jpj6tFAiE2%2B%2B01d9tZ7jxRG1XRwmWhI1SUmIO8RO2%2Bs%3D"
+  #   ports:
+  #     - 5250:80
+  #     - 5251:442
+  #   networks:
+  #     - ory
+####################################### END TalentLyft Auth #######################################################################
 networks:
-  auth:
+  ory:
+    name: ory
 
 volumes:
-  kratos-sqlite:
-  hydra-sqlite:
+  kratos-db:
+  hydra-db:

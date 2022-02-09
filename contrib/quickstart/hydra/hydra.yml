@@ -14,6 +14,10 @@ secrets:
     - youReallyNeedToChangeThis
 
 oidc:
+  dynamic_client_registration:
+    enabled: true
+    default_scope:
+      - "openid"
   subject_identifiers:
     supported_types:
       - pairwise
