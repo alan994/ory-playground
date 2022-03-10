@@ -3,6 +3,7 @@ version: '3.7'
 services:
 ####################################### KRATOS #######################################################################
   kratos-migrate:
+    container_name: kratos-migrate
     image: oryd/kratos:v0.8.0-alpha.3
     environment:
       - DSN=postgres://ory:ory@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
@@ -19,6 +20,7 @@ services:
     networks:
       - ory
   kratos:
+    container_name: kratos
     depends_on:
       - kratos-migrate
     image: oryd/kratos:v0.8.0-alpha.3
@@ -89,6 +91,7 @@ services:
 ####################################### END OAuth Keeper #######################################################################
 ####################################### HYDRA #######################################################################
   hydra:
+    container_name: hydra
     image: oryd/hydra:v1.11.1
     ports:
       - "4444:4444" # Public port
@@ -115,6 +118,7 @@ services:
       - ory
 
   hydra-migrate:
+    container_name: hydra-migrate
     image: oryd/hydra:v1.11.1
     environment:
       - DSN=postgres://ory:ory@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4

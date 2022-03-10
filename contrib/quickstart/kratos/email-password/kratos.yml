@@ -6,7 +6,9 @@ serve:
   public:
     base_url: http://127.0.0.1:4433/
     cors:
-      enabled: true
+      enabled: false
+      allowed_origins:
+        - "http://127.0.0.1:4200"
   admin:
     base_url: http://kratos:4434/
 
@@ -31,7 +33,6 @@ selfservice:
               - email
               - profile
               - openid
-
 
   flows:
     error:
@@ -91,10 +92,11 @@ hashers:
     iterations: 2
     salt_length: 16
     key_length: 16
+  # bcrypt:
+  #   cost: 4
 
 identity:
   default_schema_url: file:///etc/config/kratos/user-identity.schema.json
-
 
 courier:
   smtp:
