@@ -31,7 +31,7 @@ services:
     environment:
       - DSN=postgres://ory:ory@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
       - LOG_LEVEL=trace
-      - SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
+      # - SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4433/
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
     volumes:
       - type: volume
@@ -50,8 +50,8 @@ services:
     image: oryd/kratos-selfservice-ui-node:v0.8.0-alpha.3
     environment:
       - PORT=4435 # Why is this important? In `access-rules.yml` is configured that request is redirected to this port
-      - KRATOS_BROWSER_URL=http://127.0.0.1:4455/.ory/kratos/public
-      - JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
+      - KRATOS_BROWSER_URL=http://127.0.0.1:4433
+      # - JWKS_URL=http://oathkeeper:4456/.well-known/jwks.json
       - SECURITY_MODE=jwks
       - KRATOS_PUBLIC_URL=http://kratos:4433/
     ports:
