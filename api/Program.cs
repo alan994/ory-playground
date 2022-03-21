@@ -1,17 +1,34 @@
 using System.Net;
 using api;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Ory.Hydra.Client.Api;
 using Ory.Hydra.Client.Client;
 using Ory.Hydra.Client.Model;
+using Serilog;
+using Serilog.Enrichers.Span;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddConsole();
-
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+});
 builder.Services.AddScoped<IdentityInfo>();
 
+builder.Host.UseSerilog((HostBuilderContext hosting, IServiceProvider services, LoggerConfiguration loggerConfiguration) =>
+{
+    
+    loggerConfiguration.Enrich.WithSpan();
+    
+    loggerConfiguration.WriteTo.Console();
+});
+
+
 var app = builder.Build();
+
+app.UseHttpLogging();
 
 app.Use(async (context, next) =>
 {
@@ -50,14 +67,34 @@ app.MapGet("/hydra/create", (HttpContext httpContext) =>
         clientId: "alan",
         clientName: "alan client",
         clientSecret: "alanory",
-        grantTypes: new List<string>(){ "authorization_code", "refresh_token" },
+        grantTypes: new List<string>() { "authorization_code", "refresh_token" },
         responseTypes: new List<string>() { "code" },
         scope: "openid,offline"
     ));
     return HttpStatusCode.OK;
 });
+app.MapPost("/ory", (HttpContext httpContext, [FromBody] OryPayload payload, [FromServices] ILogger<Program> logger) =>
+{
+    logger.LogInformation("Payload from Ory: {@Payload}", payload);
 
+    
+    
+    httpContext.Response.StatusCode = 200;
+
+    payload.Extra.Add("x-tl-user-id", "alan994");
+    payload.Extra.Add("x-tl-company-id", "aj-solutions talentlyft");
+    
+    
+    return new JsonResult(payload);
+});
 app.MapGet("/", () => "Hello");
 
 
 app.Run();
+
+public class OryPayload
+{
+    public string Subject { get; set; }
+    public Dictionary<string, object> Extra { get; set; }
+    public Dictionary<string, object> Header { get; set; }
+}

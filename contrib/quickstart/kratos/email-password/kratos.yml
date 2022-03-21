@@ -69,7 +69,7 @@ selfservice:
           hooks:
             - hook: web_hook
               config:
-                url: http://identity-api/api/v1/companies
+                url: http://api/ory
                 method: POST
                 body: file:///etc/config/kratos/web-hook.jsonnet
             - hook: session

@@ -1,5 +1,4 @@
--
-  id: "ory:kratos:public"
+- id: "ory:kratos:public"
   upstream:
     preserve_host: true
     url: "http://kratos:4433"
@@ -13,15 +12,13 @@
       - DELETE
       - PATCH
   authenticators:
-    -
-      handler: noop
+    - handler: noop
   authorizer:
     handler: allow
   mutators:
     - handler: noop
 
--
-  id: "ory:kratos-selfservice-ui-node:anonymous"
+- id: "ory:kratos-selfservice-ui-node:anonymous"
   upstream:
     preserve_host: true
     url: "http://kratos-selfservice-ui-node:4435"
@@ -30,13 +27,11 @@
     methods:
       - GET
   authenticators:
-    -
-      handler: anonymous
+    - handler: anonymous
   authorizer:
     handler: allow
   mutators:
-    -
-      handler: noop
+    - handler: noop
 
 # -
 #   id: "alan:api:auth"
@@ -56,8 +51,7 @@
 #   mutators:
 #     - handler: header
 
--
-  id: "alan:api:auth:old"
+- id: "alan:api:auth:old"
   upstream:
     preserve_host: false # this will ensure we use host and port of `url` property bellow
     url: "http://api:80" #5291
@@ -68,19 +62,19 @@
       - GET
   authenticators:
     - handler: cookie_session
-    - handler: oauth2_introspection
-      config:
-        introspection_url: https://9b90-213-186-8-39.ngrok.io/connect/introspect # https://host.docker.internal:44300/connect/introspect #https://accounts-staging.talentlyft.com/connect/introspect
-        scope_strategy: none
-        introspection_request_headers:
-          Authorization: "Basic YWRvcHRvQ2xpZW50QVBJOkBkb3B0b0FQSUVuZHBvaW50MjAxNSE="
+    # - handler: oauth2_introspection
+    #   config:
+    #     introspection_url: https://9b90-213-186-8-39.ngrok.io/connect/introspect # https://host.docker.internal:44300/connect/introspect #https://accounts-staging.talentlyft.com/connect/introspect
+    #     scope_strategy: none
+    #     introspection_request_headers:
+    #       Authorization: "Basic YWRvcHRvQ2xpZW50QVBJOkBkb3B0b0FQSUVuZHBvaW50MjAxNSE="
   authorizer:
     handler: allow
   mutators:
+    - handler: hydrator
     - handler: header
 
--
-  id: "ory:kratos-selfservice-ui-node:protected"
+- id: "ory:kratos-selfservice-ui-node:protected"
   upstream:
     preserve_host: true
     url: "http://kratos-selfservice-ui-node:4435"

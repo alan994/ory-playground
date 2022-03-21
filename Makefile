@@ -8,3 +8,4 @@ ory-db-up:
 
 ory-services-up:
 	docker-compose -p ory-services -f docker-compose.yaml up -d
+
