@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  identity-api:
+    image: identity-api:latest
+    ports:
+      - "8080:80"
+    networks:
+      - ory
+
+networks:
+  ory:
+    name: ory

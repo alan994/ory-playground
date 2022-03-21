@@ -37,40 +37,45 @@ selfservice:
 
   flows:
     error:
-      ui_url: http://127.0.0.1:4435/error
+      ui_url: http://127.0.0.1:4200/error
 
     settings:
-      ui_url: http://127.0.0.1:4435/settings
+      ui_url: http://127.0.0.1:4200/settings
       privileged_session_max_age: 15m
 
     recovery:
       enabled: true
-      ui_url: http://127.0.0.1:4435/recovery
+      ui_url: http://127.0.0.1:4200/recovery
 
     verification:
       enabled: true
-      ui_url: http://127.0.0.1:4435/verification
+      ui_url: http://127.0.0.1:4200/verification
       after:
-        default_browser_return_url: http://127.0.0.1:4435/
+        default_browser_return_url: http://127.0.0.1:4200/
 
     logout:
       after:
-        default_browser_return_url: http://127.0.0.1:4435/login
+        default_browser_return_url: http://127.0.0.1:4200/login
 
     login:
-      ui_url: http://127.0.0.1:4435/login
+      ui_url: http://127.0.0.1:4200/login
       lifespan: 10m
 
     registration:
       lifespan: 10m
-      ui_url: http://127.0.0.1:4435/registration
+      ui_url: http://127.0.0.1:4200/registration
       after:
         password:
           hooks:
+            - hook: web_hook
+              config:
+                url: http://identity-api/api/v1/companies
+                method: POST
+                body: file:///etc/config/kratos/web-hook.jsonnet
             - hook: session
-        oidc:
-          hooks:
-            - hook: session
+      #   oidc:
+      #     hooks:
+      #       - hook: session
 
 log:
   level: debug
