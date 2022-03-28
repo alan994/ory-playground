@@ -87,7 +87,7 @@ mutators:
     enabled: true
     config:
       api:
-        url: http://api/ory
+        url: http://host.docker.internal:5292/ory
 
   id_token:
     enabled: true

@@ -54,7 +54,7 @@
 - id: "alan:api:auth:old"
   upstream:
     preserve_host: false # this will ensure we use host and port of `url` property bellow
-    url: "http://api:80" #5291
+    url: "http://host.docker.internal:5292" #5291
     strip_path: "/api/old"
   match:
     url: "http://127.0.0.1:4455/api/old/secure"
@@ -71,8 +71,11 @@
   authorizer:
     handler: allow
   mutators:
-    - handler: hydrator
     - handler: header
+      config:
+        headers:
+          X-Pero: "{{ print .Subject }}"
+    - handler: hydrator
 
 - id: "ory:kratos-selfservice-ui-node:protected"
   upstream:
