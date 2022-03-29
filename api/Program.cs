@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using api;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +15,18 @@ builder.Logging.AddConsole();
 builder.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = HttpLoggingFields.All;
+    logging.RequestHeaders.Add("X-UserId");
+    logging.RequestHeaders.Add("X-CompanyName");
+    logging.RequestHeaders.Add("x-tl-user-id");
+    logging.RequestHeaders.Add("x-tl-company-id");
 });
 builder.Services.AddScoped<IdentityInfo>();
 
 builder.Host.UseSerilog((HostBuilderContext hosting, IServiceProvider services, LoggerConfiguration loggerConfiguration) =>
 {
-    
+
     loggerConfiguration.Enrich.WithSpan();
-    
+
     loggerConfiguration.WriteTo.Console();
 });
 
@@ -82,19 +87,32 @@ app.MapPost("/kratos-create", (HttpContext httpContext, [FromBody] UserCreatedEv
     return;
 });
 
-app.MapPost("/ory", (HttpContext httpContext, [FromBody] OryPayload payload, [FromServices] ILogger<Program> logger) =>
+
+app.MapPost("/ory", async (HttpContext httpContext, [FromBody] OryPayload payload, [FromServices] ILogger<Program> logger) =>
 {
     logger.LogInformation("Payload from Ory: {@Payload}", payload);
 
-    
-    
+
+
     httpContext.Response.StatusCode = 200;
 
-    payload.Extra.Add("x-tl-user-id", "alan994");
-    payload.Extra.Add("x-tl-company-id", "aj-solutions talentlyft");
-    
-    
-    return new JsonResult(payload);
+    if (payload.Extra is null)
+    {
+        payload.Extra = new Dictionary<string, object>();
+    }
+
+    if (payload.Header is null)
+    {
+        payload.Header = new Dictionary<string, object>();
+    }
+
+    //payload.Extra.Add("x-tl-user-id", "alan994");
+    //payload.Extra.Add("x-tl-company-id", "aj-solutions talentlyft");
+
+    payload.Header.Add("x-tl-user-id", new string[] { "alan994" });
+    payload.Header.Add("x-tl-company-id", new string[] { "aj-solutions", "talentlyft" });
+
+    return payload;
 });
 app.MapGet("/", () => "Hello");
 
@@ -103,6 +121,8 @@ app.Run();
 
 public class OryPayload
 {
+    //public string Company { get; set; }
+    //public string IdentityId { get; set; }
     public string Subject { get; set; }
     public Dictionary<string, object> Extra { get; set; }
     public Dictionary<string, object> Header { get; set; }
