@@ -73,6 +73,15 @@ app.MapGet("/hydra/create", (HttpContext httpContext) =>
     ));
     return HttpStatusCode.OK;
 });
+
+app.MapPost("/kratos-create", (HttpContext httpContext, [FromBody] UserCreatedEvnet payload, [FromServices] ILogger<Program> logger) =>
+{
+    logger.LogInformation("Payload from Ory Kratos registration webhook: {@Payload}", payload);
+
+    httpContext.Response.StatusCode = 200;
+    return;
+});
+
 app.MapPost("/ory", (HttpContext httpContext, [FromBody] OryPayload payload, [FromServices] ILogger<Program> logger) =>
 {
     logger.LogInformation("Payload from Ory: {@Payload}", payload);
@@ -97,4 +106,27 @@ public class OryPayload
     public string Subject { get; set; }
     public Dictionary<string, object> Extra { get; set; }
     public Dictionary<string, object> Header { get; set; }
+}
+
+public class UserCreatedEvnet
+{
+    public string Company { get; set; }
+
+    public string ExternalIdentityId { get; set; }
+
+    public string CompanyUrl { get; set; }
+
+    public string Phone { get; set; }
+
+    public string Token { get; set; }
+
+    public string FullName { get; set; }
+    /*
+     * company: ctx.identity.traits.company,
+        externalIdentityId: ctx.identity.id,
+        companyUrl: ctx.identity.traits.companyUrl,
+        phone: ctx.identity.traits.phone,
+        token: "tl-ory-secret-token-abe456cd-9ef2-4205-90a5-d0ad037d7a69",
+        fullName: ctx.identity.traits.fullName
+     */
 }

@@ -33,6 +33,14 @@
         "company": {
           "type": "string",
           "title": "Company"
+        },
+        "phone": {
+          "type": "string",
+          "title": "Phone"
+        },
+        "companyUrl": {
+          "type": "string",
+          "title": "Company website"
         }
       },
       "required": [

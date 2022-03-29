@@ -73,9 +73,9 @@ selfservice:
                 method: POST
                 body: file:///etc/config/kratos/web-hook.jsonnet
             - hook: session
-      #   oidc:
-      #     hooks:
-      #       - hook: session
+        oidc:
+          hooks:
+            - hook: session
 
 log:
   level: debug
