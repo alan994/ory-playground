@@ -1,4 +1,5 @@
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using api;
 using Microsoft.AspNetCore.HttpLogging;
@@ -60,9 +61,14 @@ app.Use(async (context, next) =>
 
 
 app.MapGet("/secure", (HttpContext httpContext, [FromServices] ILogger<Program> logger, [FromServices] IdentityInfo identityInfo) =>
+{
+    foreach (var header in httpContext.Request.Headers)
     {
-        return identityInfo;
-    });
+        logger.LogInformation("Header arrived: {Key} - {@Value}", header.Key, header.Value);
+    }
+    
+    return identityInfo;
+});
 
 app.MapGet("/hydra/create", (HttpContext httpContext) =>
 {
@@ -88,30 +94,22 @@ app.MapPost("/kratos-create", (HttpContext httpContext, [FromBody] UserCreatedEv
 });
 
 
-app.MapPost("/ory", async (HttpContext httpContext, [FromBody] OryPayload payload, [FromServices] ILogger<Program> logger) =>
+app.MapPost("/hydrator", async (HttpContext httpContext, [FromBody] OryPayload payload, [FromServices] ILogger<Program> logger) =>
 {
     logger.LogInformation("Payload from Ory: {@Payload}", payload);
 
-
-
     httpContext.Response.StatusCode = 200;
-
-    if (payload.Extra is null)
-    {
-        payload.Extra = new Dictionary<string, object>();
-    }
 
     if (payload.Header is null)
     {
         payload.Header = new Dictionary<string, object>();
     }
 
-    //payload.Extra.Add("x-tl-user-id", "alan994");
-    //payload.Extra.Add("x-tl-company-id", "aj-solutions talentlyft");
-
     payload.Header.Add("x-tl-user-id", new string[] { "alan994" });
     payload.Header.Add("x-tl-company-id", new string[] { "aj-solutions", "talentlyft" });
 
+    logger.LogInformation("Returning payload to Ory: {@Payload}", payload);
+    
     return payload;
 });
 app.MapGet("/", () => "Hello");
@@ -141,6 +139,8 @@ public class UserCreatedEvnet
     public string Token { get; set; }
 
     public string FullName { get; set; }
+
+    public string Email { get; set; }
     /*
      * company: ctx.identity.traits.company,
         externalIdentityId: ctx.identity.id,

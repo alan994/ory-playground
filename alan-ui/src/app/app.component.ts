@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 
 @Component({
@@ -7,4 +8,16 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'alan-ui';
+
+  /**
+   *
+   */
+  constructor(private http: HttpClient) {
+
+
+  }
+
+  callSecureApiendpoint() {
+    this.http.get("http://127.0.0.1:5291/secure", { withCredentials: true }).subscribe((data) => console.log(data));
+  }
 }
