@@ -8,14 +8,14 @@ serve:
     cors:
       enabled: true
       allowed_origins:
-        - "http://127.0.0.1:4200"
+        - "http://127.0.0.1:4455"
   admin:
     base_url: http://kratos:4434/
 
 selfservice:
   default_browser_return_url: http://127.0.0.1:4435/
   whitelisted_return_urls:
-    - http://127.0.0.1:4200
+    - http://127.0.0.1:4455
     - http://127.0.0.1:4435
 
   methods:
@@ -37,33 +37,33 @@ selfservice:
 
   flows:
     error:
-      ui_url: http://127.0.0.1:4200/error
+      ui_url: http://127.0.0.1:4455/error
 
     settings:
-      ui_url: http://127.0.0.1:4200/settings
+      ui_url: http://127.0.0.1:4455/settings
       privileged_session_max_age: 15m
 
     recovery:
       enabled: true
-      ui_url: http://127.0.0.1:4200/recovery
+      ui_url: http://127.0.0.1:4455/recovery
 
     verification:
       enabled: true
-      ui_url: http://127.0.0.1:4200/verification
+      ui_url: http://127.0.0.1:4455/verification
       after:
-        default_browser_return_url: http://127.0.0.1:4200/
+        default_browser_return_url: http://127.0.0.1:4455/
 
     logout:
       after:
-        default_browser_return_url: http://127.0.0.1:4200/login
+        default_browser_return_url: http://127.0.0.1:4455/login
 
     login:
-      ui_url: http://127.0.0.1:4200/login
+      ui_url: http://127.0.0.1:4455/login
       lifespan: 10m
 
     registration:
       lifespan: 10m
-      ui_url: http://127.0.0.1:4200/registration
+      ui_url: http://127.0.0.1:4455/registration
       after:
         password:
           hooks:

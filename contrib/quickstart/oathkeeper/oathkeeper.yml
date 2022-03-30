@@ -9,6 +9,7 @@ serve:
       enabled: true
       allowed_origins:
         - "http://127.0.0.1:4200"
+        - "http://127.0.0.1:4202"
       allowed_methods:
         - POST
         - GET
@@ -87,7 +88,7 @@ mutators:
     enabled: true
     config:
       api:
-        url: http://host.docker.internal:5292/ory
+        url: http://api/hydrator
 
   id_token:
     enabled: true

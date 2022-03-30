@@ -4,6 +4,9 @@ WORKDIR /opt/app
 EXPOSE 80
 EXPOSE 442
 
+ENV ASPNETCORE_URLS=http://+:80
+
+
 RUN apt update && \
     apt install unzip && \
     curl -sSL https://aka.ms/getvsdbgsh | /bin/sh /dev/stdin -v latest -l /vsdbg

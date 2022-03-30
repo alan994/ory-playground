@@ -18,6 +18,6 @@ export class AppComponent {
   }
 
   callSecureApiendpoint() {
-    this.http.get("http://127.0.0.1:5291/secure", { withCredentials: true }).subscribe((data) => console.log(data));
+    this.http.get("http://127.0.0.1:4455/api/cookie/secure", { withCredentials: true }).subscribe((data) => console.log(data));
   }
 }
