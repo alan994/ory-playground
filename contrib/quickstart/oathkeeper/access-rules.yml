@@ -1,3 +1,38 @@
+# -
+#   id: "alan:api:auth"
+#   upstream:
+#     preserve_host: false # this will ensure we use host and port of `url` property bellow
+#     url: "http://api:80" #5291
+#     strip_path: "/api"
+#   match:
+#     url: "http://127.0.0.1:4455/api/secure"
+#     methods:
+#       - GET
+#   authenticators:
+#     - handler: cookie_session
+#     - handler: oauth2_introspection
+#   authorizer:
+#     handler: allow
+#   mutators:
+#     - handler: header
+
+- id: "alan:api:cookie"
+  upstream:
+    preserve_host: false # this will ensure we use host and port of `url` property bellow
+    url: "http://api" #5291
+    strip_path: "/api/cookie"
+  match:
+    url: "http://127.0.0.1:4455/api/cookie/secure"
+    methods:
+      - GET
+  authenticators:
+    - handler: cookie_session
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: hydrator
+
+# Old
 - id: "ory:kratos:public"
   upstream:
     preserve_host: true
@@ -32,50 +67,6 @@
     handler: allow
   mutators:
     - handler: noop
-
-# -
-#   id: "alan:api:auth"
-#   upstream:
-#     preserve_host: false # this will ensure we use host and port of `url` property bellow
-#     url: "http://api:80" #5291
-#     strip_path: "/api"
-#   match:
-#     url: "http://127.0.0.1:4455/api/secure"
-#     methods:
-#       - GET
-#   authenticators:
-#     - handler: cookie_session
-#     - handler: oauth2_introspection
-#   authorizer:
-#     handler: allow
-#   mutators:
-#     - handler: header
-
-- id: "alan:api:auth:old"
-  upstream:
-    preserve_host: false # this will ensure we use host and port of `url` property bellow
-    url: "http://host.docker.internal:5292" #5291
-    strip_path: "/api/old"
-  match:
-    url: "http://127.0.0.1:4455/api/old/secure"
-    methods:
-      - GET
-  authenticators:
-    - handler: cookie_session
-    # - handler: oauth2_introspection
-    #   config:
-    #     introspection_url: https://9b90-213-186-8-39.ngrok.io/connect/introspect # https://host.docker.internal:44300/connect/introspect #https://accounts-staging.talentlyft.com/connect/introspect
-    #     scope_strategy: none
-    #     introspection_request_headers:
-    #       Authorization: "Basic YWRvcHRvQ2xpZW50QVBJOkBkb3B0b0FQSUVuZHBvaW50MjAxNSE="
-  authorizer:
-    handler: allow
-  mutators:
-    - handler: header
-      config:
-        headers:
-          X-Pero: "{{ print .Subject }}"
-    - handler: hydrator
 
 - id: "ory:kratos-selfservice-ui-node:protected"
   upstream:
