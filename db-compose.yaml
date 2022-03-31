@@ -1,7 +1,6 @@
-version: '3.7'
+version: "3.7"
 
 services:
-
   postgresd:
     image: postgres:9.6
     ports:
@@ -15,19 +14,19 @@ services:
     networks:
       - ory
 
-  sqlserver:
-    # image: samuelmarks/mssql-server-fts-sqlpackage-linux
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: Ory-MsSqlServer
-    environment:
-     - ACCEPT_EULA=Y
-     - SA_PASSWORD=Rotring123_
-    ports:
-     - "1433:1433"
-    volumes:
-     - ./docker-volumes/mssql:/var/opt/mssql
-    networks:
-      - ory
+  # sqlserver:
+  #   # image: samuelmarks/mssql-server-fts-sqlpackage-linux
+  #   image: mcr.microsoft.com/mssql/server:2019-latest
+  #   container_name: Ory-MsSqlServer
+  #   environment:
+  #    - ACCEPT_EULA=Y
+  #    - SA_PASSWORD=Rotring123_
+  #   ports:
+  #    - "1433:1433"
+  #   volumes:
+  #    - ./docker-volumes/mssql:/var/opt/mssql
+  #   networks:
+  #     - ory
 
 networks:
   ory:

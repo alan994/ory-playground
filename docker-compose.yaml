@@ -90,53 +90,53 @@ services:
       - ./contrib/quickstart/oathkeeper:/etc/config/oathkeeper
 ####################################### END OAuth Keeper #######################################################################
 ####################################### HYDRA #######################################################################
-  hydra:
-    container_name: hydra
-    image: oryd/hydra:v1.11.1
-    ports:
-      - "4444:4444" # Public port
-      - "4445:4445" # Admin port
-      - "5555:5555" # Port for hydra token user
-    command:
-      serve -c /etc/config/hydra/hydra.yml all --dangerous-force-http
-    volumes:
-      -
-        type: volume
-        source: hydra-db
-        target: /var/lib/sqlite
-        read_only: false
-      -
-        type: bind
-        source: ./contrib/quickstart/hydra
-        target: /etc/config/hydra
-    environment:
-      - DSN=postgres://ory:ory@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
-    restart: unless-stopped
-    depends_on:
-      - hydra-migrate
-    networks:
-      - ory
+  # hydra:
+  #   container_name: hydra
+  #   image: oryd/hydra:v1.11.1
+  #   ports:
+  #     - "4444:4444" # Public port
+  #     - "4445:4445" # Admin port
+  #     - "5555:5555" # Port for hydra token user
+  #   command:
+  #     serve -c /etc/config/hydra/hydra.yml all --dangerous-force-http
+  #   volumes:
+  #     -
+  #       type: volume
+  #       source: hydra-db
+  #       target: /var/lib/sqlite
+  #       read_only: false
+  #     -
+  #       type: bind
+  #       source: ./contrib/quickstart/hydra
+  #       target: /etc/config/hydra
+  #   environment:
+  #     - DSN=postgres://ory:ory@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - hydra-migrate
+  #   networks:
+  #     - ory
 
-  hydra-migrate:
-    container_name: hydra-migrate
-    image: oryd/hydra:v1.11.1
-    environment:
-      - DSN=postgres://ory:ory@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
-    command:
-      migrate -c /etc/config/hydra/hydra.yml sql -e --yes
-    volumes:
-      -
-        type: volume
-        source: hydra-db
-        target: /var/lib/sqlite
-        read_only: false
-      -
-        type: bind
-        source: ./contrib/quickstart/hydra
-        target: /etc/config/hydra
-    restart: on-failure
-    networks:
-      - ory
+  # hydra-migrate:
+  #   container_name: hydra-migrate
+  #   image: oryd/hydra:v1.11.1
+  #   environment:
+  #     - DSN=postgres://ory:ory@postgresd:5432/hydra?sslmode=disable&max_conns=20&max_idle_conns=4
+  #   command:
+  #     migrate -c /etc/config/hydra/hydra.yml sql -e --yes
+  #   volumes:
+  #     -
+  #       type: volume
+  #       source: hydra-db
+  #       target: /var/lib/sqlite
+  #       read_only: false
+  #     -
+  #       type: bind
+  #       source: ./contrib/quickstart/hydra
+  #       target: /etc/config/hydra
+  #   restart: on-failure
+  #   networks:
+  #     - ory
 ####################################### END HYDRA #######################################################################
 ####################################### API #######################################################################
   api:
