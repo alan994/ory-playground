@@ -9,11 +9,17 @@ serve:
       enabled: true
       allowed_origins:
         - "http://127.0.0.1:4455"
+        - "http://127.0.0.1:4200"
+
   admin:
     base_url: http://kratos:4434/
 
+session:
+  whoami:
+    required_aal: highest_available
+
 selfservice:
-  default_browser_return_url: http://127.0.0.1:4435/
+  default_browser_return_url: http://127.0.0.1:4200/settings
   whitelisted_return_urls:
     - http://127.0.0.1:4455
     - http://127.0.0.1:4435
@@ -21,6 +27,16 @@ selfservice:
   methods:
     password:
       enabled: true
+    totp:
+      enabled: true
+      config:
+        issuer: talentlyft-ory.com
+    lookup_secret:
+      enabled: true
+    link:
+      enabled: true
+      config:
+        lifespan: 1h
     oidc:
       enabled: true
       config:
@@ -37,33 +53,34 @@ selfservice:
 
   flows:
     error:
-      ui_url: http://127.0.0.1:4455/error
+      ui_url: http://127.0.0.1:4200/error
 
     settings:
-      ui_url: http://127.0.0.1:4455/settings
+      ui_url: http://127.0.0.1:4200/settings
       privileged_session_max_age: 15m
+      required_aal: aal1
 
     recovery:
       enabled: true
-      ui_url: http://127.0.0.1:4455/recovery
+      ui_url: http://127.0.0.1:4200/recovery
 
     verification:
       enabled: true
-      ui_url: http://127.0.0.1:4455/verification
+      ui_url: http://127.0.0.1:4200/verification
       after:
-        default_browser_return_url: http://127.0.0.1:4455/
+        default_browser_return_url: http://127.0.0.1:4200/settings
 
     logout:
       after:
-        default_browser_return_url: http://127.0.0.1:4455/login
+        default_browser_return_url: http://127.0.0.1:4200/login
 
     login:
-      ui_url: http://127.0.0.1:4455/login
+      ui_url: http://127.0.0.1:4200/login
       lifespan: 10m
 
     registration:
       lifespan: 10m
-      ui_url: http://127.0.0.1:4455/registration
+      ui_url: http://127.0.0.1:4200/registration
       after:
         password:
           hooks:
