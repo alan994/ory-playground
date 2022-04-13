@@ -4,7 +4,7 @@ services:
 ####################################### KRATOS #######################################################################
   kratos-migrate:
     container_name: kratos-migrate
-    image: oryd/kratos:v0.8.0-alpha.3
+    image: oryd/kratos:v0.9.0
     environment:
       - DSN=postgres://ory:ory@postgresd:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
@@ -23,7 +23,7 @@ services:
     container_name: kratos
     depends_on:
       - kratos-migrate
-    image: oryd/kratos:v0.8.0-alpha.3
+    image: oryd/kratos:v0.9.0
     ports:
       - '4433:4433' # public
       - '4434:4434' # admin
@@ -47,7 +47,7 @@ services:
 ####################################### END KRATOS #######################################################################
 ####################################### UI #######################################################################
   kratos-selfservice-ui-node:
-    image: oryd/kratos-selfservice-ui-node:v0.8.0-alpha.3
+    image: oryd/kratos-selfservice-ui-node:v0.9.0-alpha.3
     environment:
       - PORT=4435 # Why is this important? In `access-rules.yml` is configured that request is redirected to this port
       - KRATOS_BROWSER_URL=http://127.0.0.1:4433
@@ -72,7 +72,7 @@ services:
 ####################################### END TOOLS #######################################################################
 ####################################### OAuth Keeper #######################################################################
   oathkeeper:
-    image: oryd/oathkeeper:v0.38
+    image: oryd/oathkeeper:v0.38.24
     depends_on:
       - kratos
     ports:
