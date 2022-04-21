@@ -66,7 +66,7 @@ app.MapGet("/secure", (HttpContext httpContext, [FromServices] ILogger<Program> 
     {
         logger.LogInformation("Header arrived: {Key} - {@Value}", header.Key, header.Value);
     }
-    
+
     return identityInfo;
 });
 
@@ -105,11 +105,11 @@ app.MapPost("/hydrator", async (HttpContext httpContext, [FromBody] OryPayload p
         payload.Header = new Dictionary<string, object>();
     }
 
-    payload.Header.Add("x-tl-user-id", new string[] { "alan994" });
-    payload.Header.Add("x-tl-company-id", new string[] { "aj-solutions", "talentlyft" });
+    payload.Header.Add("X-Tl-User-Id", new string[] { "alan994" });
+    payload.Header.Add("X-Tl-Company-Id", new string[] { "aj-solutions", "talentlyft" });
 
     logger.LogInformation("Returning payload to Ory: {@Payload}", payload);
-    
+
     return payload;
 });
 app.MapGet("/", () => "Hello");
