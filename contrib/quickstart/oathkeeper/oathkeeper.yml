@@ -19,6 +19,7 @@ serve:
       allowed_headers:
         - Authorization
         - Content-Type
+        - X-Tl-Company-Id
       exposed_headers:
         - Content-Type
       allow_credentials: true
@@ -88,7 +89,7 @@ mutators:
     enabled: true
     config:
       api:
-        url: http://api/hydrator
+        url: http://host.docker.internal:53481/hydrator #http://api/hydrator
 
   id_token:
     enabled: true

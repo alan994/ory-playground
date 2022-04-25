@@ -96,6 +96,13 @@ app.MapPost("/kratos-create", (HttpContext httpContext, [FromBody] UserCreatedEv
 
 app.MapPost("/hydrator", async (HttpContext httpContext, [FromBody] OryPayload payload, [FromServices] ILogger<Program> logger) =>
 {
+    var targetCompanyIdHeader = "X-Tl-Target-Company-Id";
+
+    var targetCOmpanyIdStr = httpContext.Request.Headers.FirstOrDefault(x => x.Key == targetCompanyIdHeader).Value.ToString();
+
+
+
+
     logger.LogInformation("Payload from Ory: {@Payload}", payload);
 
     httpContext.Response.StatusCode = 200;
