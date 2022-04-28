@@ -16,6 +16,24 @@
 #   mutators:
 #     - handler: header
 
+- id: "alan:api:cookie2"
+  upstream:
+    preserve_host: false # this will ensure we use host and port of `url` property bellow
+    url: "http://api" #5291
+    strip_path: "/api/cookie"
+  match:
+    url: "http://127.0.0.1:4456/api/cookie/secure"
+    methods:
+      - GET
+  authenticators:
+    - handler: cookie_session
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: hydrator
+  error:
+    - handler: redirect
+
 - id: "alan:api:cookie"
   upstream:
     preserve_host: false # this will ensure we use host and port of `url` property bellow

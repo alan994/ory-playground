@@ -33,7 +33,7 @@ errors:
     redirect:
       enabled: true
       config:
-        to: http://127.0.0.1:4200/login
+        to: https://www.google.com
         when:
           - error:
               - unauthorized
