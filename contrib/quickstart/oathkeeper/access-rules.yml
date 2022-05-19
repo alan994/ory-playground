@@ -22,7 +22,7 @@
     url: "http://api" #5291
     strip_path: "/api/cookie"
   match:
-    url: "http://127.0.0.1:4456/api/cookie/secure"
+    url: "http://127.0.0.1:4456/api/cookie/secure/<**>"
     methods:
       - GET
   authenticators:

@@ -100,9 +100,6 @@ app.MapPost("/hydrator", async (HttpContext httpContext, [FromBody] OryPayload p
 
     var targetCOmpanyIdStr = httpContext.Request.Headers.FirstOrDefault(x => x.Key == targetCompanyIdHeader).Value.ToString();
 
-
-
-
     logger.LogInformation("Payload from Ory: {@Payload}", payload);
 
     httpContext.Response.StatusCode = 200;
@@ -121,6 +118,31 @@ app.MapPost("/hydrator", async (HttpContext httpContext, [FromBody] OryPayload p
 });
 app.MapGet("/", () => "Hello");
 
+
+app.MapGet("/check-cookie", async (HttpContext httpContext, [FromServices] ILogger<Program> logger) =>
+{
+    var cookie = httpContext.Request.Cookies["ory_kratos_session"];
+    
+    var baseAddress = new Uri("http://localhost:4433");
+    var cookieContainer = new CookieContainer();
+    using (var handler = new HttpClientHandler() { CookieContainer = cookieContainer })
+    using (var client = new HttpClient(handler) { BaseAddress = baseAddress })
+    {
+        // var content = new FormUrlEncodedContent(new[]
+        // {
+        //     new KeyValuePair<string, string>("foo", "bar"),
+        //     new KeyValuePair<string, string>("baz", "bazinga"),
+        // });
+        cookieContainer.Add(baseAddress, new Cookie("ory_kratos_session", cookie));
+        var result = await client.GetAsync("/sessions/whoami");
+        
+        var response = await result.Content.ReadAsStringAsync();
+        logger.LogInformation("Kratos response ({StatusCode}): {@Response}", result.StatusCode.ToString(), response);
+    }
+    
+    logger.LogInformation("Test");
+    return "Test";
+});
 
 app.Run();
 
